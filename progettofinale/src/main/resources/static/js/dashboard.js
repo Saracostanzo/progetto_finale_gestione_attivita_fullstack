@@ -3,7 +3,7 @@
 // Se l'utente non è loggato lo rimando al login
 const currentUser = getUser();
 if (!currentUser) {
-    window.location.href = 'login.html';
+  window.location.href = 'login.html';
 }
 
 // Mostro il nome nella navbar
@@ -20,20 +20,20 @@ let taskIdInModifica = null;
 
 
 async function caricaTask() {
-    const stato    = document.getElementById('filtroStato').value;
-    const priorita = document.getElementById('filtroPriorita').value;
+  const stato = document.getElementById('filtroStato').value;
+  const priorita = document.getElementById('filtroPriorita').value;
 
-    let url = `${BASE_URL}/tasks?userId=${currentUser.id}`;
-    if (stato)    url += `&stato=${stato}`;
-    if (priorita) url += `&priorita=${priorita}`;
+  let url = `${BASE_URL}/tasks?userId=${currentUser.id}`;
+  if (stato) url += `&stato=${stato}`;
+  if (priorita) url += `&priorita=${priorita}`;
 
-    try {
-        const response = await fetch(url);
-        tasks = await response.json();
-        mostraTask(tasks);
-    } catch (err) {
-        alert('Errore nel caricamento dei task.');
-    }
+  try {
+    const response = await fetch(url);
+    tasks = await response.json();
+    mostraTask(tasks);
+  } catch (err) {
+    alert('Errore nel caricamento dei task.');
+  }
 }
 
 
@@ -41,39 +41,39 @@ async function caricaTask() {
 
 
 function mostraTask(lista) {
-    const tbody    = document.getElementById('taskBody');
-    const emptyMsg = document.getElementById('emptyMsg');
+  const tbody = document.getElementById('taskBody');
+  const emptyMsg = document.getElementById('emptyMsg');
 
-    tbody.innerHTML = '';
+  tbody.innerHTML = '';
 
-    if (lista.length === 0) {
-        emptyMsg.style.display = 'block';
-        return;
-    }
-    emptyMsg.style.display = 'none';
+  if (lista.length === 0) {
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
 
-    lista.forEach(function (task) {
+  lista.forEach(function (task) {
 
-        // Testo e classe CSS per il badge stato
-        const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLETATO: 'Completato' };
-        const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLETATO: 'badge-completato' };
+    // Testo e classe CSS per il badge stato
+    const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLETATO: 'Completato' };
+    const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLETATO: 'badge-completato' };
 
-        // Testo e classe CSS per il badge priorità
-        const prioClass = { ALTA: 'badge-alta', MEDIA: 'badge-media', BASSA: 'badge-bassa' };
+    // Testo e classe CSS per il badge priorità
+    const prioClass = { ALTA: 'badge-alta', MEDIA: 'badge-media', BASSA: 'badge-bassa' };
 
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-            '<td>' + task.titolo + '</td>' +
-            '<td><span class="badge ' + (statoClass[task.stato] || '') + '">' + (statoLabel[task.stato] || task.stato) + '</span></td>' +
-            '<td><span class="badge ' + (prioClass[task.priorita] || '') + '">' + task.priorita + '</span></td>' +
-            '<td>' + formatDate(task.dataScadenza) + '</td>' +
-            '<td class="row-actions">' +
-                '<button class="btn-edit"   onclick="apriModifica(' + task.id + ')">Modifica</button>' +
-                '<button class="btn-danger" onclick="eliminaTask(' + task.id + ')">Elimina</button>' +
-            '</td>';
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + task.titolo + '</td>' +
+      '<td><span class="badge ' + (statoClass[task.stato] || '') + '">' + (statoLabel[task.stato] || task.stato) + '</span></td>' +
+      '<td><span class="badge ' + (prioClass[task.priorita] || '') + '">' + task.priorita + '</span></td>' +
+      '<td>' + formatDate(task.dataScadenza) + '</td>' +
+      '<td class="row-actions">' +
+      '<button class="btn-edit"   onclick="apriModifica(' + task.id + ')">Modifica</button>' +
+      '<button class="btn-danger" onclick="eliminaTask(' + task.id + ')">Elimina</button>' +
+      '</td>';
 
-        tbody.appendChild(tr);
-    });
+    tbody.appendChild(tr);
+  });
 }
 
 
@@ -81,21 +81,21 @@ function mostraTask(lista) {
 
 
 async function eliminaTask(id) {
-    if (!confirm('Sei sicuro di voler eliminare questo task?')) return;
+  if (!confirm('Sei sicuro di voler eliminare questo task?')) return;
 
-    try {
-        const response = await fetch(`${BASE_URL}/tasks/${id}`, {
-            method: 'DELETE'
-        });
+  try {
+    const response = await fetch(`${BASE_URL}/tasks/${id}`, {
+      method: 'DELETE'
+    });
 
-        if (response.ok) {
-            caricaTask(); // ricarico la lista
-        } else {
-            alert("Errore durante l'eliminazione.");
-        }
-    } catch (err) {
-        alert('Errore di connessione.');
+    if (response.ok) {
+      caricaTask(); // ricarico la lista
+    } else {
+      alert("Errore durante l'eliminazione.");
     }
+  } catch (err) {
+    alert('Errore di connessione.');
+  }
 }
 
 
@@ -103,11 +103,11 @@ async function eliminaTask(id) {
 
 
 function openModal() {
-    taskIdInModifica = null;
-    document.getElementById('modalTitle').textContent = 'Nuovo Task';
-    document.getElementById('taskForm').reset();
-    document.getElementById('modalErr').textContent = '';
-    document.getElementById('modal').classList.add('open');
+  taskIdInModifica = null;
+  document.getElementById('modalTitle').textContent = 'Nuovo Task';
+  document.getElementById('taskForm').reset();
+  document.getElementById('modalErr').textContent = '';
+  document.getElementById('modal').classList.add('open');
 }
 
 
@@ -115,21 +115,21 @@ function openModal() {
 
 
 function apriModifica(id) {
-    // Trovo il task nell'array già caricato
-    const task = tasks.find(function (t) { return t.id === id; });
-    if (!task) return;
+  // Trovo il task nell'array già caricato
+  const task = tasks.find(function (t) { return t.id === id; });
+  if (!task) return;
 
-    taskIdInModifica = task.id;
+  taskIdInModifica = task.id;
 
-    document.getElementById('modalTitle').textContent      = 'Modifica Task';
-    document.getElementById('inputTitolo').value           = task.titolo;
-    document.getElementById('inputDescrizione').value      = task.descrizione || '';
-    document.getElementById('inputStato').value            = task.stato;
-    document.getElementById('inputPriorita').value         = task.priorita;
-    document.getElementById('inputScadenza').value         = toInputDateTime(task.dataScadenza);
-    document.getElementById('modalErr').textContent        = '';
+  document.getElementById('modalTitle').textContent = 'Modifica Task';
+  document.getElementById('inputTitolo').value = task.titolo;
+  document.getElementById('inputDescrizione').value = task.descrizione || '';
+  document.getElementById('inputStato').value = task.stato;
+  document.getElementById('inputPriorita').value = task.priorita;
+  document.getElementById('inputScadenza').value = toInputDateTime(task.dataScadenza);
+  document.getElementById('modalErr').textContent = '';
 
-    document.getElementById('modal').classList.add('open');
+  document.getElementById('modal').classList.add('open');
 }
 
 
@@ -137,12 +137,12 @@ function apriModifica(id) {
 
 
 function closeModal() {
-    document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal').classList.remove('open');
 }
 
 // Chiudo il modal cliccando fuori dalla box
 document.getElementById('modal').addEventListener('click', function (e) {
-    if (e.target === this) closeModal();
+  if (e.target === this) closeModal();
 });
 
 
@@ -150,57 +150,65 @@ document.getElementById('modal').addEventListener('click', function (e) {
 
 
 document.getElementById('taskForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const titolo      = document.getElementById('inputTitolo').value.trim();
-    const descrizione = document.getElementById('inputDescrizione').value.trim();
-    const stato       = document.getElementById('inputStato').value;
-    const priorita    = document.getElementById('inputPriorita').value;
-    const scadenza    = document.getElementById('inputScadenza').value;
-    const errMsg      = document.getElementById('modalErr');
+  const titolo = document.getElementById('inputTitolo').value.trim();
+  const descrizione = document.getElementById('inputDescrizione').value.trim();
+  const stato = document.getElementById('inputStato').value;
+  const priorita = document.getElementById('inputPriorita').value;
+  const scadenza = document.getElementById('inputScadenza').value;
+  const errMsg = document.getElementById('modalErr');
 
-    if (!titolo) {
-        errMsg.textContent = 'Il titolo è obbligatorio.';
-        return;
+  if (!titolo) {
+    errMsg.textContent = 'Il titolo è obbligatorio.';
+    return;
+  }
+
+  const dati = {
+    titolo: titolo,
+    descrizione: descrizione,
+    stato: stato,
+    priorita: priorita,
+    dataScadenza: scadenza || null,
+    userId: currentUser.id
+  };
+
+  try {
+    let response;
+
+    if (taskIdInModifica) {
+      // Modifica task esistente
+      response = await fetch(`${BASE_URL}/tasks/${taskIdInModifica}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dati)
+      });
+    } else {
+      // Crea nuovo task
+      const response = await fetch(`${BASE_URL}/tasks/userId=${currentUser.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dati)
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        console.error("Errore:", err);
+      } else {
+        const result = await response.json();
+        console.log("Task creato:", result);
+      }
     }
 
-    const dati = {
-        titolo:       titolo,
-        descrizione:  descrizione,
-        stato:        stato,
-        priorita:     priorita,
-        dataScadenza: scadenza || null,
-        userId:       currentUser.id
-    };
-
-    try {
-        let response;
-
-        if (taskIdInModifica) {
-            // Modifica task esistente
-            response = await fetch(`${BASE_URL}/tasks/${taskIdInModifica}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dati)
-            });
-        } else {
-            // Crea nuovo task
-            response = await fetch(`${BASE_URL}/tasks?userId=${currentUser.id}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dati)
-            });
-        }
-
-        if (response.ok) {
-            closeModal();
-            caricaTask(); // ricarico la lista
-        } else {
-            errMsg.textContent = 'Errore nel salvataggio del task.';
-        }
-    } catch (err) {
-        errMsg.textContent = 'Errore di connessione al server.';
+    if (response.ok) {
+      closeModal();
+      caricaTask(); // ricarico la lista
+    } else {
+      errMsg.textContent = 'Errore nel salvataggio del task.';
     }
+  } catch (err) {
+    errMsg.textContent = 'Errore di connessione al server.';
+  }
 });
 
 
@@ -208,8 +216,8 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
 
 
 function logout() {
-    removeUser();
-    window.location.href = 'login.html';
+  removeUser();
+  window.location.href = 'login.html';
 }
 
 
