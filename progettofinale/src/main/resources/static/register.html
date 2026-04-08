@@ -1,86 +1,44 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaskFlow – Registrati</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/auth.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione – TaskFlow</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="auth-body">
+<body class="auth-page">
 
-  <div class="auth-card">
+    <div class="auth-card">
+        <h1>TaskFlow</h1>
+        <h2>Crea un account</h2>
 
-    <div class="auth-logo">
-      <div class="auth-logo-icon">✓</div>
-      <span class="auth-logo-text">TaskFlow</span>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="il tuo username">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="la tua email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="almeno 6 caratteri">
+            </div>
+            <div class="form-group">
+                <label for="confirm">Conferma password</label>
+                <input type="password" id="confirm" placeholder="ripeti la password">
+            </div>
+
+            <p id="errMsg" class="error-msg"></p>
+
+            <button type="submit" class="btn-primary btn-full">Registrati</button>
+        </form>
+
+        <p class="auth-link">Hai già un account? <a href="login.html">Accedi</a></p>
     </div>
 
-    <div class="auth-heading">
-      <h1>Crea il tuo account</h1>
-      <p>Inizia a gestire le tue attività in pochi secondi</p>
-    </div>
-
-    <div id="formAlert" class="alert"></div>
-
-    <form id="registerForm" novalidate>
-
-      <div class="form-group">
-        <label class="form-label" for="username">Username</label>
-        <div class="input-wrap">
-          <span class="i-icon">👤</span>
-          <input class="form-control" type="text" id="username"
-            placeholder="Il tuo username" autocomplete="username"
-            required minlength="3">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <div class="input-wrap">
-          <span class="i-icon">✉</span>
-          <input class="form-control" type="email" id="email"
-            placeholder="nome@esempio.com" autocomplete="email" required>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <div class="input-wrap">
-          <span class="i-icon">🔒</span>
-          <input class="form-control" type="password" id="password"
-            placeholder="Almeno 4 caratteri" autocomplete="new-password" required>
-          <button type="button" class="btn-pw-eye" data-target="password">👁</button>
-        </div>
-        <div class="pw-bar-wrap"><div class="pw-bar-fill" id="strengthFill"></div></div>
-        <div class="pw-bar-label" id="strengthText"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="password2">Conferma password</label>
-        <div class="input-wrap">
-          <span class="i-icon">🔒</span>
-          <input class="form-control" type="password" id="password2"
-            placeholder="Ripeti la password" autocomplete="new-password" required>
-          <button type="button" class="btn-pw-eye" data-target="password2">👁</button>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-auth" id="submitBtn">Crea account</button>
-
-    </form>
-
-    <div class="auth-footer">
-      Hai già un account? <a href="login.html">Accedi</a>
-    </div>
-
-  </div>
-
-  <div id="toast" class="toast"></div>
-
-  <script src="js/config.js"></script>
-  <script src="js/register.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/register.js"></script>
 </body>
 </html>
