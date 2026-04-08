@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.itconsulting.progettofinale.dto.TaskDto;
+import it.itconsulting.progettofinale.enumerazioni.Priorita;
+import it.itconsulting.progettofinale.enumerazioni.Stato;
 import it.itconsulting.progettofinale.model.Errore;
 import it.itconsulting.progettofinale.model.Task;
 import it.itconsulting.progettofinale.service.TaskService;
@@ -27,18 +29,19 @@ import it.itconsulting.progettofinale.service.TaskService;
 
 
 @RestController
-@CrossOrigin(origins = {"http://127.0.0.1:5501", "http://localhost:5501"})
+@CrossOrigin(origins = { "http://127.0.0.1:5501", "http://localhost:5501"})
 public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/api/tasks")
-    public List<Task> getAll() {
-        return taskService.getAll();
+    @GetMapping("/api/users/{id}/tasks")
+    public ResponseEntity<List<Task>> getAll(@PathVariable long id) {
+        List<Task> tasks = taskService.getByUserId(id);
+        return ResponseEntity.ok(tasks);
     }
 
-    @PostMapping("/api/tasks")
-    public ResponseEntity<Object> create(@RequestBody(required=false) @Validated TaskDto tDto, BindingResult bindingResult) {
+    @PostMapping("/api/users/{id}/tasks")
+    public ResponseEntity<Object> create(@PathVariable long id, @RequestBody(required=false) @Validated TaskDto tDto, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             Errore errore = new Errore();
             errore.setMessaggio(bindingResult.getAllErrors().stream().map(obError -> obError.getDefaultMessage()).collect(Collectors.joining(","))); 
@@ -47,7 +50,7 @@ public class TaskController {
         }
         Task task = null;
         try {
-            task = taskService.create(tDto);
+            task = taskService.create(tDto, id);
             return ResponseEntity.status(HttpStatus.CREATED).body(task);
         } catch (IllegalArgumentException e) {
             Errore error = new Errore();
@@ -82,4 +85,15 @@ public class TaskController {
       taskService.delete(id);
     }
 
+    @GetMapping("/api/users/{id}/tasks/stato/{stato}")
+    public ResponseEntity<List<Task>> getByStatoAndUserId(@PathVariable long id, @PathVariable Stato stato) {
+        List<Task> tasks = taskService.getByStatoAndUserId(id, stato);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/api/users/{id}/tasks/priorita/{priorita}")
+    public ResponseEntity<List<Task>> getByPrioritaAndUserId(@PathVariable long id, @PathVariable Priorita priorita) {
+        List<Task> tasks = taskService.getByPrioritaAndUserId(id, priorita);
+        return ResponseEntity.ok(tasks);
+    }
 }

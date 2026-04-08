@@ -23,10 +23,12 @@ async function caricaTask() {
   const stato = document.getElementById('filtroStato').value;
   const priorita = document.getElementById('filtroPriorita').value;
 
-  let url = `${BASE_URL}/tasks?userId=${currentUser.id}`;
-  if (stato) url += `&stato=${stato}`;
-  if (priorita) url += `&priorita=${priorita}`;
-
+  const params = new URLSearchParams();
+  if (stato) params.append('stato', stato);
+  if (priorita) params.append('priorita', priorita);
+  
+  const queryString = params.toString();
+  const url = `${BASE_URL}/users/${currentUser.id}/tasks${queryString ? '?' + queryString : ''}`;
   try {
     const response = await fetch(url);
     tasks = await response.json();
@@ -55,8 +57,8 @@ function mostraTask(lista) {
   lista.forEach(function (task) {
 
     // Testo e classe CSS per il badge stato
-    const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLEATATO: 'Completato' };
-    const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLEATATO: 'badge-completato' };
+    const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLETATO: 'Completato' };
+    const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLETATO: 'badge-completato' };
 
     // Testo e classe CSS per il badge priorità
     const prioClass = { ALTA: 'badge-alta', MEDIA: 'badge-media', BASSA: 'badge-bassa' };
@@ -165,16 +167,16 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
   }
 
   // Per la modifica uso la dataCreazione originale del task, per il nuovo uso l'ora corrente
-  const dataCreazioneStr = taskIdInModifica
-    ? toInputDateTime(tasks.find(function (t) { return t.id === taskIdInModifica; }).dataCreazione)
-    : new Date().toISOString().slice(0, 16);
+  // const dataCreazioneStr = taskIdInModifica
+  //   ? toInputDateTime(tasks.find(function (t) { return t.id === taskIdInModifica; }).dataCreazione)
+  //   : new Date().toISOString().slice(0, 16);
 
   const dati = {
     titolo: titolo,
     descrizione: descrizione,
     stato: stato,
     priorita: priorita,
-    dataCreazione: dataCreazioneStr,
+    // dataCreazione: dataCreazioneStr,
     dataScadenza: scadenza || null,
     userId: currentUser.id
   };
@@ -191,7 +193,7 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
       });
     } else {
       // Crea nuovo task
-      response = await fetch(`${BASE_URL}/tasks`, {
+      response = await fetch(`${BASE_URL}/users/${currentUser.id}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dati)
