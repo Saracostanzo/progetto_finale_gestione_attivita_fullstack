@@ -1,0 +1,629 @@
+/*
+  dashboard.css — stili della pagina principale dell'app
+  -------------------------------------------------------
+  Questo è il file CSS più grande del progetto perché la dashboard è
+  la pagina più complessa: ha la sidebar, la topbar, la tabella task,
+  il modal e i vari componenti di filtro.
+
+  Ho ispirato il layout a ClickUp: griglia a due colonne (sidebar fissa + contenuto),
+  sidebar scura con voci hover, topbar chiara con barra di ricerca,
+  tabella task a righe con azioni che appaiono solo sull'hover.
+
+  Il layout di base è CSS Grid, scelta per poter posizionare
+  sidebar e topbar in modo indipendente senza float o hack.
+*/
+
+
+/* ─────────────────────────────────────────────────────────
+   LAYOUT PRINCIPALE — CSS Grid 2 colonne + 2 righe
+   .app usa una griglia con:
+     - colonna 1: 220px fissi = sidebar
+     - colonna 2: 1fr = tutto il resto del contenuto
+     - riga 1: 50px = topbar
+     - riga 2: 1fr = main scrollabile
+
+   La sidebar occupa entrambe le righe (grid-row: 1 / -1)
+   e la topbar occupa solo la colonna 2, riga 1.
+   ───────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 50px auto; /* auto invece di 1fr: si adatta al contenuto */
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════════════════
+   La sidebar è scura (--sidebar-bg: #1c1b2e) e si estende per
+   tutta l'altezza della pagina grazie a grid-row: 1 / -1.
+   overflow-y:auto permette lo scroll se ci sono molte voci,
+   senza che il contenuto principale venga influenzato.
+   ─────────────────────────────────────────────────────────── */
+.sidebar {
+  grid-row: 1 / -1; /* occupa sia la riga della topbar che quella del main */
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 16px;
+  position: sticky; /* resta visibile durante lo scroll della pagina */
+  top: 0;
+  height: 100vh;
+  align-self: start; /* per position sticky su grid item */
+}
+
+
+/* ── Workspace header (in cima alla sidebar) ───────────────
+   La prima riga della sidebar mostra il nome del workspace
+   con un piccolo avatar quadrato viola.
+   height:50px la allinea esattamente con la topbar a destra.
+   ─────────────────────────────────────────────────────────── */
+.sidebar-workspace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 50px; /* stesso height della topbar, così si allineano visivamente */
+  border-bottom: 1px solid var(--sidebar-border);
+  cursor: pointer;
+  transition: background var(--ease);
+  flex-shrink: 0; /* non si restringe se la sidebar è piccola */
+}
+.sidebar-workspace:hover { background: var(--sidebar-hover); }
+
+/* Avatar quadrato viola (iniziali del workspace) */
+.ws-avatar {
+  width: 26px; height: 26px;
+  background: var(--cu-purple);
+  border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+  letter-spacing: -.5px;
+}
+
+/* Nome del workspace — tronca con ellipsis se troppo lungo */
+.ws-name {
+  font-size: .82rem; font-weight: 700;
+  color: var(--sidebar-text-hi);
+  flex: 1; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+
+/* Freccia a destra del nome workspace */
+.ws-chevron { color: var(--sidebar-text); font-size: .65rem; }
+
+
+/* ── Sezioni e voci della sidebar ──────────────────────────
+   Ogni sezione ha una label in maiuscolo (es. "FILTRA PER")
+   seguita dalle voci cliccabili (.sidebar-item).
+   ─────────────────────────────────────────────────────────── */
+.sidebar-section { margin-top: 10px; }
+
+.sidebar-section-label {
+  font-size: .65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px;
+  color: var(--sidebar-text);
+  padding: 4px 16px 4px;
+  opacity: .6; /* attenuato perché è una label, non un'azione */
+}
+
+/* Voce di navigazione — uso position:relative per il bordo viola a sinistra (.active) */
+.sidebar-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 14px;
+  font-size: .82rem; font-weight: 500;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  border-radius: 0; /* nessun border-radius: le voci toccano i bordi della sidebar */
+  transition: background var(--ease), color var(--ease);
+  user-select: none; /* non voglio che il testo venga selezionato con i click ripetuti */
+  position: relative; /* serve per ::before (il bordo viola a sinistra) */
+}
+.sidebar-item:hover  { background: var(--sidebar-hover); color: var(--sidebar-text-hi); }
+
+/* Voce attiva: sfondo viola trasparente + bordo viola verticale a sinistra */
+.sidebar-item.active {
+  background: var(--sidebar-active);
+  color: #c8bfff; /* violetto chiaro — contrasta bene sullo sfondo scuro attivo */
+}
+
+/* Il bordo viola a sinistra della voce attiva — generato con ::before.
+   Ho usato uno pseudo-elemento invece di border-left per poter
+   arrotondare solo il lato destro (border-radius: 0 2px 2px 0). */
+.sidebar-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--cu-purple);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Icona della voce — larghezza fissa per allineare tutte le label */
+.si-icon { font-size: .88rem; width: 18px; text-align: center; flex-shrink: 0; opacity: .8; }
+.si-label { flex: 1; }
+
+/* Badge contatore (es. numero di task in quella categoria) */
+.si-badge {
+  background: rgba(123,104,238,.35);
+  color: #c8bfff;
+  font-size: .65rem; font-weight: 700;
+  padding: 1px 6px; border-radius: var(--radius-full);
+  min-width: 18px; text-align: center;
+}
+
+
+/* ── Sezione utente in fondo alla sidebar ──────────────────
+   margin-top:auto la spinge in fondo alla colonna flex.
+   Mostra avatar, nome, email e bottone logout.
+   ─────────────────────────────────────────────────────────── */
+.sidebar-user {
+  margin-top: auto; /* flex trick: la spinge sempre al fondo della sidebar */
+  border-top: 1px solid var(--sidebar-border);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 9px;
+}
+
+/* Avatar circolare dell'utente loggato (iniziali generate da JS con initials()) */
+.su-avatar {
+  width: 28px; height: 28px;
+  background: var(--cu-purple);
+  border-radius: 50%; /* cerchio perfetto */
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+
+/* Blocco info: nome + email — min-width:0 è fondamentale per far funzionare
+   text-overflow:ellipsis dentro un flex item */
+.su-info { flex: 1; min-width: 0; }
+.su-name  { font-size: .78rem; font-weight: 600; color: var(--sidebar-text-hi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.su-email { font-size: .68rem; color: var(--sidebar-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Bottone logout — piccola icona discreta, diventa rossa sull'hover */
+.btn-logout-icon {
+  background: none; border: none; color: var(--sidebar-text);
+  cursor: pointer; padding: 4px; font-size: .85rem;
+  border-radius: var(--radius-xs);
+  transition: color var(--ease), background var(--ease);
+}
+.btn-logout-icon:hover { color: #ef4444; background: rgba(239,68,68,.15); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR
+   ═══════════════════════════════════════════════════════════
+   La topbar è chiara (--surface = bianco) e si trova in cima
+   al contenuto principale, affiancata alla sidebar.
+   position:sticky + top:0 la mantiene visibile durante lo scroll.
+   z-index:100 la tiene sopra le righe della tabella task.
+   ─────────────────────────────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100; /* sticky nel body scroll */
+  box-shadow: var(--shadow-xs);
+  align-self: start; /* per sticky su grid item */
+}
+
+/* Breadcrumb — mostra "TaskFlow › I miei task" */
+.topbar-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .82rem; color: var(--text-muted);
+  flex: 1; /* si espande per occupare lo spazio tra il breadcrumb e la barra di ricerca */
+}
+.topbar-breadcrumb .bc-sep     { opacity: .4; font-size: .7rem; }
+.topbar-breadcrumb .bc-current { color: var(--text); font-weight: 600; }
+
+/* Barra di ricerca — non un form vero, ma un div che contiene un <input> senza bordi.
+   Il bordo e la forma vengono gestiti dal contenitore .topbar-search.
+   La ricerca filtra i task in tempo reale tramite dashboard.js. */
+.topbar-search {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: .82rem; color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--ease);
+  width: 200px;
+}
+.topbar-search:hover { border-color: var(--cu-purple); color: var(--text); }
+.topbar-search input {
+  background: none; border: none; outline: none;
+  font-size: .82rem; color: var(--text); width: 100%;
+  font-family: var(--font);
+}
+.topbar-search input::placeholder { color: var(--text-muted); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN — area contenuto scrollabile
+   ═══════════════════════════════════════════════════════════
+   .main contiene tutto ciò che sta sotto la topbar: l'intestazione,
+   la striscia statistiche, la toolbar filtri e la tabella task.
+   display:flex + flex-direction:column + gap:20px separa visivamente
+   le sezioni senza margini espliciti su ogni singolo elemento.
+   ─────────────────────────────────────────────────────────── */
+.main {
+  padding: 24px 28px;
+  /* overflow-y rimosso: lasciamo scrollare il body normale per evitare
+     problemi di sticky/overlap dentro container overflow:auto */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0; /* evita overflow orizzontale su flex item */
+}
+
+
+/* ── Page header — titolo + bottone "Nuova task" ──────────── */
+.view-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; /* su mobile va a capo */
+}
+
+.view-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.2rem; font-weight: 700; color: var(--text);
+}
+
+/* Quadratino viola con l'icona prima del titolo */
+.view-title-icon {
+  width: 30px; height: 30px;
+  background: var(--cu-purple-light);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem;
+}
+
+.view-actions { display: flex; gap: 8px; align-items: center; }
+
+
+/* ── Striscia statistiche — 4 chip affiancati ─────────────
+   Ogni chip mostra un numero grande + un'etichetta + un pallino colorato.
+   Ho usato flex-wrap:wrap così su mobile i chip vanno a capo
+   invece di comprimersi fino a diventare illeggibili.
+   ─────────────────────────────────────────────────────────── */
+.stat-strip {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+
+.stat-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: .8rem; font-weight: 600; color: var(--text-muted);
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-chip-num { font-size: 1rem; font-weight: 800; color: var(--text); }
+.stat-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Pallini colorati per ogni stato/totale — usano le variabili di common.css */
+.dot-total { background: var(--cu-purple); }
+.dot-todo  { background: var(--s-todo-dot); }
+.dot-doing { background: var(--s-doing-dot); }
+.dot-done  { background: var(--s-done-dot); }
+
+
+/* ── Toolbar filtri — sopra la tabella ────────────────────
+   Questa toolbar è il "cappello" della tabella: ha border-radius solo in alto
+   e border-bottom:none così si fonde visivamente con la tabella sottostante.
+   Contiene i bottoni filtro rapido (Tutti, Da fare, In corso, Completati)
+   e i select per stato e priorità.
+   ─────────────────────────────────────────────────────────── */
+.list-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0; /* angoli arrotondati solo in alto */
+  border-bottom: none; /* il bordo inferiore lo fa la tabella */
+  flex-wrap: wrap;
+}
+
+.toolbar-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; }
+
+/* Bottoni filtro rapido (es. "Tutti", "Da fare") —
+   diventano attivi quando il filtro è selezionato */
+.toolbar-filter-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .78rem; font-weight: 500; color: var(--text-muted);
+  cursor: pointer; transition: all var(--ease);
+}
+.toolbar-filter-btn:hover  { border-color: var(--cu-purple); color: var(--cu-purple); background: var(--cu-purple-light); }
+.toolbar-filter-btn.active { border-color: var(--cu-purple); color: var(--cu-purple); background: var(--cu-purple-light); font-weight: 600; }
+
+/* Separatore verticale tra gruppi di controlli nella toolbar */
+.toolbar-sep { width: 1px; height: 18px; background: var(--border); }
+
+/* Select custom per filtrare per stato/priorità — stessa freccia SVG inline
+   usata in common.css per i select del form, per coerenza */
+.toolbar-select {
+  padding: 4px 26px 4px 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .78rem; color: var(--text); font-family: var(--font);
+  cursor: pointer; outline: none;
+  appearance: none; /* rimuovo la freccia nativa del browser */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b6b8d' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  transition: border-color var(--ease);
+}
+.toolbar-select:focus { border-color: var(--cu-purple); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   TABELLA TASK — cuore della dashboard
+   ═══════════════════════════════════════════════════════════
+   Non è una vera <table> HTML ma un sistema di div con CSS Grid:
+   questo mi dà più controllo sull'aspetto e sulle animazioni
+   rispetto alle limitazioni di style delle celle di tabella native.
+
+   Struttura:
+     .task-table-wrap        — contenitore con bordo e border-radius
+       .task-table-head      — riga intestazione colonne (sticky)
+       #taskList             — contenitore dinamico delle righe
+         .task-row           — singola riga task (griglia a 6 colonne)
+       .add-task-row         — riga "+" per aggiungere task
+   ─────────────────────────────────────────────────────────── */
+.task-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius); /* angoli solo in basso, in alto ci pensa la toolbar */
+  overflow: hidden;
+}
+
+/* ── Intestazione colonne ────────────────────────────────────
+   Le 6 colonne: [checkbox 28px] [nome 1fr] [stato 130px] [priorità 100px] [data 120px] [azioni 80px]
+   Questa griglia deve essere identica a quella di .task-row per allineare le colonne.
+   position:sticky + top:50px la tiene visibile durante lo scroll, sotto la topbar (50px di altezza).
+   ─────────────────────────────────────────────────────────── */
+.task-table-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 130px 90px 110px 130px 70px; /* DEVE corrispondere a .task-row */
+  align-items: center;
+  padding: 0 14px;
+  height: 34px;
+  background: var(--surface-2); /* leggermente diverso dal bianco per distinguersi dalle righe */
+  border-bottom: 1px solid var(--border);
+  font-size: .7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  color: var(--text-light);
+  user-select: none;
+  /* Non uso sticky: causava overlap con le righe task dentro .main overflow-y:auto */
+}
+
+/* Allineamento dei singoli header di colonna */
+.col-check   { }
+.col-name    { padding-left: 8px; }
+.col-status  { text-align: center; }
+.col-prio    { text-align: center; }
+.col-date    { text-align: center; }
+.col-created { text-align: center; } /* nuova colonna: data di creazione */
+.col-act     { text-align: right; }
+
+
+/* ── Riga task ───────────────────────────────────────────────
+   Stessa griglia dell'intestazione — è fondamentale che i
+   grid-template-columns coincidano esattamente, altrimenti le colonne
+   non si allineano.
+
+   .row-done aggiunge il testo barrato al nome per le task completate.
+   I bottoni azione (.row-action-btn) sono opacity:0 di default
+   e diventano visibili solo sull'hover della riga: UX stile ClickUp.
+   ─────────────────────────────────────────────────────────── */
+.task-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 130px 100px 120px 80px; /* IDENTICA all'intestazione */
+  align-items: center;
+  padding: 0 14px;
+  min-height: 42px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--ease);
+  cursor: default;
+}
+.task-row:last-child { border-bottom: none; } /* l'ultima riga non ha bordo inferiore */
+.task-row:hover      { background: #faf9ff; }
+
+/* Task completata: il nome viene barrato e schiarito */
+.task-row.row-done .task-row-name { text-decoration: line-through; color: var(--text-muted); }
+
+
+/* ── Colonna nome — titolo + descrizione ─────────────────── */
+.task-row-name-wrap {
+  display: flex; flex-direction: column;
+  padding: 8px 8px;
+  gap: 3px; min-width: 0; /* min-width:0 = necessario per text-overflow su flex item */
+}
+
+.task-row-name {
+  font-size: .86rem; font-weight: 500;
+  color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.task-row-desc {
+  font-size: .74rem; color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Colonne centrate (stato, priorità, data, creazione) ────
+   Overrido text-align con display:flex per centrare correttamente
+   anche gli elementi inline-flex come i badge/pill.
+   (text-align non centra correttamente elementi flex o inline-flex) */
+.col-status  { display: flex; align-items: center; justify-content: center; }
+.col-prio    { display: flex; align-items: center; justify-content: center; }
+.col-date    { display: flex; align-items: center; justify-content: center; }
+.col-created { display: flex; align-items: center; justify-content: center; } /* data creazione */
+
+
+/* ── Chip data scadenza ─────────────────────────────────────
+   Piccola pillola con l'icona e la data. Il colore cambia in base
+   alla vicinanza della scadenza — la logica è in DateUtils.scadenzaInfo() in config.js,
+   qui definisco solo i tre stati visivi.
+   ─────────────────────────────────────────────────────────── */
+.date-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .73rem; font-weight: 500; color: var(--text-muted);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+
+/* Scaduta = rosso */
+.date-chip.scaduto { color: var(--danger);  background: var(--danger-light);  border-color: #fca5a5; }
+/* Scade oggi = giallo/arancio */
+.date-chip.oggi    { color: var(--warning); background: var(--warning-light); border-color: #fcd34d; }
+/* Scade tra 1-3 giorni = arancio attenuato */
+.date-chip.vicino  { color: #c2410c;        background: #fff7ed;              border-color: #fed7aa; }
+
+
+/* ── Bottoni azione riga (hover) ────────────────────────────
+   opacity:0 di default — appaiono solo quando si passa sopra la riga.
+   Questo è il pattern di ClickUp: le azioni non ingombrano la vista
+   finché non servono, ma sono sempre raggiungibili.
+   ─────────────────────────────────────────────────────────── */
+.col-act { display: flex; justify-content: flex-end; align-items: center; gap: 4px; }
+
+.row-action-btn {
+  background: none; border: none;
+  color: var(--text-light); cursor: pointer;
+  font-size: .8rem; padding: 4px 6px;
+  border-radius: var(--radius-xs);
+  transition: all var(--ease);
+  opacity: 0; /* nascosto di default */
+}
+/* Mostra i bottoni solo quando si passa sopra la riga */
+.task-row:hover .row-action-btn { opacity: 1; }
+.row-action-btn:hover     { background: var(--bg); color: var(--text); }
+.row-action-btn.del:hover { color: var(--danger); background: var(--danger-light); }
+
+
+/* ── Riga "Aggiungi task" ────────────────────────────────────
+   Riga in fondo alla tabella che apre il modal per creare una nuova task.
+   padding-left:42px allinea il "+" con il testo delle task (28px checkbox + 14px padding).
+   ─────────────────────────────────────────────────────────── */
+.add-task-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px 9px 42px; /* 42 = 28px colonna checkbox + 14px padding */
+  font-size: .82rem; color: var(--text-muted);
+  cursor: pointer;
+  border-top: 1px solid var(--border-light);
+  transition: background var(--ease), color var(--ease);
+}
+.add-task-row:hover { background: var(--cu-purple-light); color: var(--cu-purple); }
+.add-task-row .plus { font-size: 1rem; font-weight: 700; }
+
+
+/* ── Empty state — nessun task da mostrare ──────────────────
+   Testo e icona centrati quando la lista è vuota o i filtri non danno risultati.
+   opacity:.35 sull'icona la rende decorativa, non invadente.
+   ─────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+}
+.empty-icon  { font-size: 2.8rem; margin-bottom: 12px; opacity: .35; }
+.empty-title { font-size: .95rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+.empty-sub   { font-size: .8rem; color: var(--text-light); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL — crea / modifica task
+   ═══════════════════════════════════════════════════════════
+   Il modal è usato sia per creare che per modificare una task
+   (dashboard.js usa la variabile taskInModifica per distinguere i due casi).
+
+   .modal-overlay è il layer semi-trasparente che copre tutta la pagina;
+   display:none di default → display:flex quando ha la classe .open.
+   backdrop-filter:blur aggiunge l'effetto smerigliato sul contenuto dietro.
+   ─────────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; /* inset:0 = top/right/bottom/left:0 */
+  background: rgba(10,8,28,.45);
+  z-index: 1000; align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px); /* effetto vetro smerigliato */
+}
+.modal-overlay.open { display: flex; } /* aggiunta da JS per aprire il modal */
+
+/* Il box bianco del modal — animazione di entrata con scale + fade */
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  width: 100%; max-width: 490px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn .2s ease;
+  max-height: 92vh; overflow-y: auto; /* scroll interno se il form è troppo alto */
+  border: 1px solid var(--border);
+}
+@keyframes modalIn {
+  from { opacity:0; transform: scale(.95) translateY(8px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* Header del modal: titolo a sinistra, bottone × a destra */
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 0;
+}
+.modal-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+/* Bottone chiudi (×) — circolare, diventa rosso sull'hover */
+.modal-close {
+  background: var(--bg); border: none;
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: .9rem; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--ease);
+}
+.modal-close:hover { background: var(--danger-light); color: var(--danger); }
+
+/* Corpo e piede del modal */
+.modal-body   { padding: 20px 24px; }
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 9px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--border);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════
+   Su schermi < 900px nascondo la sidebar (non c'è abbastanza spazio)
+   e riduco le colonne della tabella a 4 (tolgo data e azioni).
+   Su schermi < 520px riduco ulteriormente a 3 colonne (tolgo anche la priorità).
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 50px auto; }
+  .sidebar { display: none; position: static; height: auto; } /* nascondo la sidebar su mobile */
+  /* Riduco le colonne della tabella a 4: check, nome, stato, priorità */
+  .task-table-head,
+  .task-row { grid-template-columns: 28px 1fr 110px 80px; }
+  /* Nascondo data scadenza, data creazione e azioni su tablet/mobile */
+  .col-date, .col-created, .col-act { display: none; }
+}
+
+@media (max-width: 520px) {
+  .main { padding: 16px; }
+  /* Solo check, nome, stato su schermi molto piccoli */
+  .task-table-head,
+  .task-row { grid-template-columns: 28px 1fr 110px; }
+  .col-prio, .col-date, .col-created, .col-act { display: none; }
+}

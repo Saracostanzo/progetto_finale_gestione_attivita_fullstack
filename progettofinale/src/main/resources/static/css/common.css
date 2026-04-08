@@ -1,0 +1,284 @@
+/*
+  common.css — stili condivisi tra tutte le pagine
+  -------------------------------------------------
+  Questo file viene caricato in login.html, register.html e dashboard.html.
+  Contiene le variabili CSS (palette colori, ombre, raggi), il reset di base,
+  i bottoni, i form, gli alert, i toast e i badge stato/priorità.
+
+  Ho scelto di usare variabili CSS (--nome) per tutti i colori e le misure
+  che si ripetono: in questo modo se voglio cambiare il viola del brand
+  basta modificare --cu-purple qui e cambia ovunque.
+
+  La palette è: viola come colore principale,
+  sidebar scura navy, sfondo grigio chiaro per il contenuto.
+*/
+
+
+/* ─────────────────────────────────────────────────────────
+   VARIABILI CSS — palette, misure, ombre
+   ───────────────────────────────────────────────────────── */
+:root {
+
+  /* Colore brand principale e le sue varianti */
+  --cu-purple:       #7b68ee;
+  --cu-purple-dark:  #6254d4;   /* hover dei bottoni primari */
+  --cu-purple-light: #ede9ff;   /* sfondi chiari, hover sidebar */
+  --cu-purple-glow:  rgba(123,104,238,.18); /* ombra colorata dei bottoni */
+
+  /* Colori della sidebar scura */
+  --sidebar-bg:      #1c1b2e;   /* sfondo principale sidebar */
+  --sidebar-bg2:     #252436;   /* sfondo alternativo (non usato ora, ma utile) */
+  --sidebar-hover:   rgba(255,255,255,.06);  /* hover sulle voci */
+  --sidebar-active:  rgba(123,104,238,.22);  /* voce attiva */
+  --sidebar-text:    #a8a7c7;   /* testo normale sidebar */
+  --sidebar-text-hi: #ffffff;   /* testo evidenziato / titoli */
+  --sidebar-border:  rgba(255,255,255,.07);  /* separatori */
+
+  /* Superfici e sfondi del contenuto principale */
+  --bg:          #f4f4f8;  /* sfondo pagina */
+  --surface:     #ffffff;  /* card, modal, topbar */
+  --surface-2:   #f9f9fc;  /* intestazioni colonne tabella */
+  --border:      #e4e4ee;  /* bordi generici */
+  --border-light: #eeeef6; /* bordi più sottili (separatori righe task) */
+
+  /* Testo */
+  --text:       #1a1b2e;  /* testo principale */
+  --text-muted: #6b6b8d;  /* testo secondario (etichette, placeholder) */
+  --text-light: #a0a0c0;  /* testo molto attenuato (colonna "—") */
+
+  /* Colori stato task — background, testo e pallino per i badge */
+  --s-todo-bg:    #f0f0f8;  --s-todo-c:    #5f5f8f;  --s-todo-dot:    #9898b8;
+  --s-doing-bg:   #e8f0ff;  --s-doing-c:   #2563eb;  --s-doing-dot:   #2563eb;
+  --s-done-bg:    #e6faf3;  --s-done-c:    #059669;  --s-done-dot:    #059669;
+
+  /* Colori priorità (solo il testo/icona, lo sfondo viene definito inline) */
+  --p-urgent-c: #ef4444;
+  --p-high-c:   #f97316;
+  --p-normal-c: #a0a0c0;
+
+  /* Colori semantici per alert, toast e stati */
+  --danger:        #ef4444;  --danger-light:  #fef2f2;
+  --success:       #10b981;  --success-light: #ecfdf5;
+  --warning:       #f59e0b;  --warning-light: #fffbeb;
+
+  /* Border radius — uso una scala coerente in tutta l'app */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius:      8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 999px; /* cerchi e pill */
+
+  /* Ombre */
+  --shadow-xs: 0 1px 2px  rgba(0,0,0,.06);
+  --shadow-sm: 0 2px 8px  rgba(0,0,0,.07);
+  --shadow:    0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,.16); /* modal */
+
+  /* Transizione standard — usata su quasi tutti gli elementi interattivi */
+  --ease: .18s ease;
+
+  /* Font — Inter con fallback sicuri */
+  --font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   RESET BASE
+   Tolgo margini e padding di default del browser e imposto
+   box-sizing: border-box su tutto (padding incluso nella larghezza).
+   ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased; /* testo più nitido su Mac */
+  line-height: 1.5;
+}
+
+a { color: var(--cu-purple); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+
+/* ─────────────────────────────────────────────────────────
+   BOTTONI
+   Ho una serie di varianti: primary (viola), secondary (bianco con bordo),
+   ghost (trasparente), danger (rosso chiaro), full-width.
+   ───────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  border: none; border-radius: var(--radius-sm);
+  font-size: .82rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer; white-space: nowrap;
+  transition: all var(--ease);
+}
+.btn:active   { transform: scale(.97); } /* piccolo feedback al click */
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* Viola con ombra colorata — usato per le azioni principali */
+.btn-primary { background: var(--cu-purple); color: #fff; box-shadow: 0 2px 10px var(--cu-purple-glow); }
+.btn-primary:hover { background: var(--cu-purple-dark); box-shadow: 0 4px 16px var(--cu-purple-glow); }
+
+/* Bianco con bordo — per azioni secondarie */
+.btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--cu-purple); color: var(--cu-purple); background: var(--cu-purple-light); }
+
+/* Trasparente — per azioni poco importanti (reset filtri, ecc.) */
+.btn-ghost { background: transparent; color: var(--text-muted); padding: 6px 12px; }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+
+/* Rosso chiaro — per elimina e logout */
+.btn-danger { background: var(--danger-light); color: var(--danger); }
+.btn-danger:hover { background: #fecaca; }
+
+/* Larghezza piena — usato nei form di login/register */
+.btn-full { width: 100%; justify-content: center; padding: 11px; font-size: .92rem; }
+
+
+/* ─────────────────────────────────────────────────────────
+   FORM — label, input, textarea, select
+   ───────────────────────────────────────────────────────── */
+.form-group { margin-bottom: 18px; }
+
+/* Label piccola e in maiuscolo */
+.form-label {
+  display: block;
+  font-size: .75rem; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+
+/* Input base — uguale per text, email, password, date, textarea, select */
+.form-control {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .9rem; font-family: var(--font);
+  color: var(--text); background: var(--surface);
+  outline: none;
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.form-control:focus {
+  border-color: var(--cu-purple);
+  box-shadow: 0 0 0 3px var(--cu-purple-glow); /* alone viola leggero al focus */
+}
+.form-control::placeholder { color: var(--text-light); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* Select con freccia personalizzata (quella del browser è brutta) */
+select.form-control {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6b8d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center;
+  padding-right: 34px;
+}
+
+/* Griglia a due colonne nel modal (Stato | Priorità affiancati) */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+
+/* ─────────────────────────────────────────────────────────
+   ALERT — messaggi di errore/successo inline nel form
+   Nasce nascosto (display:none), diventa visibile con la classe .show
+   ───────────────────────────────────────────────────────── */
+.alert {
+  display: none; padding: 11px 14px;
+  border-radius: var(--radius-sm); font-size: .84rem;
+  margin-bottom: 18px; border: 1px solid;
+}
+.alert.show    { display: flex; align-items: center; gap: 8px; }
+.alert-error   { background: var(--danger-light);  color: #b91c1c; border-color: #fca5a5; }
+.alert-success { background: var(--success-light); color: #065f46; border-color: #6ee7b7; }
+
+
+/* ─────────────────────────────────────────────────────────
+   TOAST — notifica temporanea in basso a destra
+   Appare con l'animazione toastIn e scompare dopo 3s (rimosso da JS)
+   ───────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 18px; border-radius: var(--radius);
+  font-size: .85rem; font-weight: 600; z-index: 9999;
+  display: none; align-items: center; gap: 9px;
+  box-shadow: var(--shadow-lg); max-width: 340px;
+  animation: toastIn .25s ease;
+}
+.toast.show    { display: flex; }
+.toast-success { background: #065f46; color: #fff; }
+.toast-error   { background: #991b1b; color: #fff; }
+.toast-info    { background: var(--cu-purple); color: #fff; }
+
+@keyframes toastIn {
+  from { transform: translateX(100px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   BADGE STATO — pill con pallino colorato
+   Il pallino è generato tramite ::before, senza elemento HTML extra.
+   ───────────────────────────────────────────────────────── */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: var(--radius-full);
+  font-size: .72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+}
+.status-pill::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+/* Le classi seguono il valore lowercase dell'enum: DAFARE → .status-dafare */
+.status-dafare    { background: var(--s-todo-bg);  color: var(--s-todo-c);  }
+.status-dafare::before    { background: var(--s-todo-dot);  }
+.status-incorso   { background: var(--s-doing-bg); color: var(--s-doing-c); }
+.status-incorso::before   { background: var(--s-doing-dot); }
+.status-completato { background: var(--s-done-bg);  color: var(--s-done-c);  }
+.status-completato::before { background: var(--s-done-dot);  }
+
+
+/* ─────────────────────────────────────────────────────────
+   BADGE PRIORITÀ — flag con icona e colore
+   ───────────────────────────────────────────────────────── */
+.prio-flag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .72rem; font-weight: 600;
+  padding: 2px 8px; border-radius: var(--radius-full);
+}
+.prio-alta  { color: #dc2626; background: #fef2f2; }
+.prio-media { color: #ea580c; background: #fff7ed; }
+.prio-bassa { color: var(--text-light); background: var(--bg); }
+
+
+/* ─────────────────────────────────────────────────────────
+   SCROLLBAR PERSONALIZZATA
+   Più sottile e coerente con il design rispetto a quella di default
+   ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d1e8; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b0d0; }
+
+
+/* ─────────────────────────────────────────────────────────
+   CHECKBOX 
+   Un div quadrato che si trasforma in spunta verde quando la task è completata.
+   Lo stato 'checked' viene aggiunto/rimosso da dashboard.js.
+   ───────────────────────────────────────────────────────── */
+.cu-checkbox {
+  width: 15px; height: 15px; flex-shrink: 0;
+  border: 1.5px solid var(--border); border-radius: 3px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--ease); background: var(--surface);
+}
+.cu-checkbox:hover                { border-color: var(--cu-purple); background: var(--cu-purple-light); }
+.cu-checkbox.checked              { background: var(--success); border-color: var(--success); }
+.cu-checkbox.checked::after       { content: '✓'; color: #fff; font-size: .65rem; font-weight: 800; }
