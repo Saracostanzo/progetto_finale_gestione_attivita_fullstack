@@ -55,8 +55,8 @@ function mostraTask(lista) {
   lista.forEach(function (task) {
 
     // Testo e classe CSS per il badge stato
-    const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLETATO: 'Completato' };
-    const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLETATO: 'badge-completato' };
+    const statoLabel = { DAFARE: 'Da fare', INCORSO: 'In corso', COMPLEATATO: 'Completato' };
+    const statoClass = { DAFARE: 'badge-dafare', INCORSO: 'badge-incorso', COMPLEATATO: 'badge-completato' };
 
     // Testo e classe CSS per il badge priorità
     const prioClass = { ALTA: 'badge-alta', MEDIA: 'badge-media', BASSA: 'badge-bassa' };
@@ -164,11 +164,17 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
     return;
   }
 
+  // Per la modifica uso la dataCreazione originale del task, per il nuovo uso l'ora corrente
+  const dataCreazioneStr = taskIdInModifica
+    ? toInputDateTime(tasks.find(function (t) { return t.id === taskIdInModifica; }).dataCreazione)
+    : new Date().toISOString().slice(0, 16);
+
   const dati = {
     titolo: titolo,
     descrizione: descrizione,
     stato: stato,
     priorita: priorita,
+    dataCreazione: dataCreazioneStr,
     dataScadenza: scadenza || null,
     userId: currentUser.id
   };
@@ -185,19 +191,11 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
       });
     } else {
       // Crea nuovo task
-      const response = await fetch(`${BASE_URL}/tasks/userId=${currentUser.id}`, {
+      response = await fetch(`${BASE_URL}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dati)
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        console.error("Errore:", err);
-      } else {
-        const result = await response.json();
-        console.log("Task creato:", result);
-      }
     }
 
     if (response.ok) {

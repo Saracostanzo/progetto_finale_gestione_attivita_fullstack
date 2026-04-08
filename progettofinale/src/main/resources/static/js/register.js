@@ -46,8 +46,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
             alert('Registrazione completata! Ora puoi accedere.');
             window.location.href = 'login.html';
         } else {
-            const msg = await response.text();
-            errMsg.textContent = msg || 'Errore durante la registrazione.';
+            const errBody = await response.json();
+            errMsg.textContent = errBody.messaggio || 'Errore durante la registrazione.';
         }
     } catch (err) {
         errMsg.textContent = 'Errore di connessione al server.';

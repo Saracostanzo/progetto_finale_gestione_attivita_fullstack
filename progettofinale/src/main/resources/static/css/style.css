@@ -14,8 +14,8 @@ body {
 }
 
 
-   PAGINE LOGIN E REGISTRAZIONE
-  
+   /* PAGINE LOGIN E REGISTRAZIONE */
+
 
 .auth-page {
     display: flex;
@@ -94,6 +94,12 @@ body {
 .form-group textarea:focus {
     outline: none;
     border-color: #6c5ce7;
+}
+
+/* Bordo rosso su email non valida (solo dopo che l'utente ha digitato qualcosa) */
+input[type="email"]:not(:placeholder-shown):invalid {
+    border-color: #e74c3c;
+    outline: none;
 }
 
 /* Due colonne affiancate nel form del modal */
