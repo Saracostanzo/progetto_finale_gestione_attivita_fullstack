@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.itconsulting.progettofinale.dto.LoginDto;
 import it.itconsulting.progettofinale.dto.UserDto;
 import it.itconsulting.progettofinale.model.Errore;
 import it.itconsulting.progettofinale.model.User;
@@ -45,7 +46,22 @@ public class UserController {
     }
 
     @PostMapping("/api/users/login")
-    public ResponseEntity<Object> login(@RequestBody(required=false) @Validated UserDto uDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> login(@RequestBody(required=false) @Validated LoginDto lDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            Errore errore = new Errore();
+            errore.setMessaggio(bindingResult.getAllErrors().stream().map(obError -> obError.getDefaultMessage()).collect(Collectors.joining(","))); 
+            errore.setDataErrore(LocalDateTime.now());
+            return ResponseEntity.badRequest().body(errore); 
+        }
         
+        try {
+            User user = userService.getByEmailAndPassword(lDto.getEmail(), lDto.getPassword());
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } catch (IllegalArgumentException e) {
+            Errore error = new Errore();
+            error.setMessaggio(e.getMessage());
+            error.setDataErrore(LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error); 
+        } 
     }
 }

@@ -49,4 +49,12 @@ public class UserService {
     public void delete(long id) {
         userRepository.deleteById(id);
     }
+
+    public User getByEmailAndPassword(String email, String password) {
+        User user = userRepository.findByEmailAndPassword(email, password);
+        if(user != null) {
+            return user;
+        }
+        throw new IllegalArgumentException("User non trovato!");
+    }
 }
