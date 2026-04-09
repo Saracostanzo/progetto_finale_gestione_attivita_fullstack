@@ -77,10 +77,32 @@ public class TaskService {
     }
 
     public List<Task> getByStatoAndUserId(long id, Stato stato) {
-        return taskRepository.findByStatoAndUserId(id, stato);
+        return taskRepository.findByUserIdAndStato(id, stato);
     }
     
     public List<Task> getByPrioritaAndUserId(long id, Priorita priorita) {
-        return taskRepository.findByPrioritaAndUserId(id, priorita);
+        return taskRepository.findByUserIdAndPriorita(id, priorita);
+    }
+
+    public List<Task> getByUserIdAndStatoAndPriorita(long id, Stato stato, Priorita priorita) {
+        return taskRepository.findByUserIdAndStatoAndPriorita(id, stato, priorita);
+    }
+
+    public List<Task> getByFilters(Long userId, Stato stato, Priorita priorita) {
+        
+        if (stato != null && priorita != null) {
+            return taskRepository.findByUserIdAndStatoAndPriorita(userId, stato, priorita);
+        }
+        
+        if (stato != null) {
+            return taskRepository.findByUserIdAndStato(userId, stato);
+        }
+        
+        if (priorita != null) {
+            return taskRepository.findByUserIdAndPriorita(userId, priorita);
+        }
+        
+        
+        return taskRepository.findByUserId(userId);
     }
 }

@@ -166,10 +166,6 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
     return;
   }
 
-  // Per la modifica uso la dataCreazione originale del task, per il nuovo uso l'ora corrente
-  // const dataCreazioneStr = taskIdInModifica
-  //   ? toInputDateTime(tasks.find(function (t) { return t.id === taskIdInModifica; }).dataCreazione)
-  //   : new Date().toISOString().slice(0, 16);
 
   const dati = {
     titolo: titolo,

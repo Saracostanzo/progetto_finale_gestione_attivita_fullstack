@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.itconsulting.progettofinale.dto.TaskDto;
@@ -35,8 +36,13 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping("/api/users/{id}/tasks")
-    public ResponseEntity<List<Task>> getAll(@PathVariable long id) {
-        List<Task> tasks = taskService.getByUserId(id);
+    public ResponseEntity<List<Task>> getAll(
+            @PathVariable long id,
+            @RequestParam(required = false) Stato stato,
+            @RequestParam(required = false) Priorita priorita) {
+        
+        List<Task> tasks = taskService.getByFilters(id, stato, priorita);
+        
         return ResponseEntity.ok(tasks);
     }
 
@@ -85,15 +91,4 @@ public class TaskController {
       taskService.delete(id);
     }
 
-    @GetMapping("/api/users/{id}/tasks/stato/{stato}")
-    public ResponseEntity<List<Task>> getByStatoAndUserId(@PathVariable long id, @PathVariable Stato stato) {
-        List<Task> tasks = taskService.getByStatoAndUserId(id, stato);
-        return ResponseEntity.ok(tasks);
-    }
-
-    @GetMapping("/api/users/{id}/tasks/priorita/{priorita}")
-    public ResponseEntity<List<Task>> getByPrioritaAndUserId(@PathVariable long id, @PathVariable Priorita priorita) {
-        List<Task> tasks = taskService.getByPrioritaAndUserId(id, priorita);
-        return ResponseEntity.ok(tasks);
-    }
 }
