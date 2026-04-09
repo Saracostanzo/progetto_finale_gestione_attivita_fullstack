@@ -9,38 +9,48 @@ if (!currentUser) {
 // Mostro il nome nella navbar
 document.getElementById('welcomeUser').textContent = 'Ciao, ' + currentUser.username;
 
-// Array con tutti i task attualmente visibili (usato per la modifica)
+// Lista completa dei task ricevuta dal server (senza filtri)
+let tuttiITask = [];
+
+// Lista attualmente visibile dopo i filtri (usata anche da apriModifica)
 let tasks = [];
 
 // ID del task in modifica (null = stiamo creando un nuovo task)
 let taskIdInModifica = null;
 
 
-// CARICA TASK DAL SERVER
-
+// ─── CARICA TASK DAL SERVER ───────────────────────────────────────────────────
+// Recupera TUTTI i task dell'utente, poi applica i filtri client-side.
 
 async function caricaTask() {
-  const stato = document.getElementById('filtroStato').value;
-  const priorita = document.getElementById('filtroPriorita').value;
-
-  const params = new URLSearchParams();
-  if (stato) params.append('stato', stato);
-  if (priorita) params.append('priorita', priorita);
-  
-  const queryString = params.toString();
-  const url = `${BASE_URL}/users/${currentUser.id}/tasks${queryString ? '?' + queryString : ''}`;
+  const url = `${BASE_URL}/users/${currentUser.id}/tasks`;
   try {
     const response = await fetch(url);
-    tasks = await response.json();
-    mostraTask(tasks);
+    tuttiITask = await response.json();
+    filtraTask();
   } catch (err) {
     alert('Errore nel caricamento dei task.');
   }
 }
 
 
-// MOSTRA I TASK NELLA TABELLA
+// ─── FILTRA LATO CLIENT ───────────────────────────────────────────────────────
+// Legge i valori dei select e filtra tuttiITask senza fare nuove chiamate.
 
+function filtraTask() {
+  const stato = document.getElementById('filtroStato').value;
+  const priorita = document.getElementById('filtroPriorita').value;
+
+  tasks = tuttiITask.filter(function (t) {
+    return (!stato || t.stato === stato) &&
+           (!priorita || t.priorita === priorita);
+  });
+
+  mostraTask(tasks);
+}
+
+
+// ─── MOSTRA I TASK NELLA TABELLA ─────────────────────────────────────────────
 
 function mostraTask(lista) {
   const tbody = document.getElementById('taskBody');
@@ -79,8 +89,7 @@ function mostraTask(lista) {
 }
 
 
-// ELIMINA UN TASK
-
+// ─── ELIMINA UN TASK ─────────────────────────────────────────────────────────
 
 async function eliminaTask(id) {
   if (!confirm('Sei sicuro di voler eliminare questo task?')) return;
@@ -91,7 +100,7 @@ async function eliminaTask(id) {
     });
 
     if (response.ok) {
-      caricaTask(); // ricarico la lista
+      caricaTask();
     } else {
       alert("Errore durante l'eliminazione.");
     }
@@ -101,8 +110,7 @@ async function eliminaTask(id) {
 }
 
 
-// MODAL — APRI PER NUOVO TASK
-
+// ─── MODAL — APRI PER NUOVO TASK ─────────────────────────────────────────────
 
 function openModal() {
   taskIdInModifica = null;
@@ -113,11 +121,9 @@ function openModal() {
 }
 
 
-// MODAL — APRI PER MODIFICA
-
+// ─── MODAL — APRI PER MODIFICA ───────────────────────────────────────────────
 
 function apriModifica(id) {
-  // Trovo il task nell'array già caricato
   const task = tasks.find(function (t) { return t.id === id; });
   if (!task) return;
 
@@ -135,8 +141,7 @@ function apriModifica(id) {
 }
 
 
-// MODAL — CHIUDI
-
+// ─── MODAL — CHIUDI ──────────────────────────────────────────────────────────
 
 function closeModal() {
   document.getElementById('modal').classList.remove('open');
@@ -148,8 +153,7 @@ document.getElementById('modal').addEventListener('click', function (e) {
 });
 
 
-// SALVA TASK (crea o modifica)
-
+// ─── SALVA TASK (crea o modifica) ────────────────────────────────────────────
 
 document.getElementById('taskForm').addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -166,17 +170,11 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
     return;
   }
 
-  // Per la modifica uso la dataCreazione originale del task, per il nuovo uso l'ora corrente
-  // const dataCreazioneStr = taskIdInModifica
-  //   ? toInputDateTime(tasks.find(function (t) { return t.id === taskIdInModifica; }).dataCreazione)
-  //   : new Date().toISOString().slice(0, 16);
-
   const dati = {
     titolo: titolo,
     descrizione: descrizione,
     stato: stato,
     priorita: priorita,
-    // dataCreazione: dataCreazioneStr,
     dataScadenza: scadenza || null,
     userId: currentUser.id
   };
@@ -202,18 +200,18 @@ document.getElementById('taskForm').addEventListener('submit', async function (e
 
     if (response.ok) {
       closeModal();
-      caricaTask(); // ricarico la lista
+      caricaTask();
     } else {
-      errMsg.textContent = 'Errore nel salvataggio del task.';
+      const errBody = await response.json();
+      errMsg.textContent = errBody.messaggio || 'Errore durante il salvataggio.';
     }
   } catch (err) {
-    errMsg.textContent = 'Errore di connessione al server.';
+    errMsg.textContent = 'Errore di connessione.';
   }
 });
 
 
-// LOGOUT
-
+// ─── LOGOUT ──────────────────────────────────────────────────────────────────
 
 function logout() {
   removeUser();
@@ -221,8 +219,6 @@ function logout() {
 }
 
 
-// AVVIO
+// ─── AVVIO ───────────────────────────────────────────────────────────────────
 
-
-// Carico i task appena la pagina è pronta
 caricaTask();
