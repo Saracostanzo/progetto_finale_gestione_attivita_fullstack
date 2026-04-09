@@ -228,4 +228,5 @@ function logout() {
 }
 
 
-// avvio: appena la pagina è pront
+// avvio: appena la pagina è pronta carico subito i task dell'utente
+caricaTask();
