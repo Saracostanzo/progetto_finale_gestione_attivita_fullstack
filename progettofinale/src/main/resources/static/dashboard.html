@@ -24,14 +24,14 @@
         <div class="toolbar">
             <button onclick="openModal()" class="btn-primary">+ Nuovo Task</button>
 
-            <select id="filtroStato" onchange="filtraTask()">
+            <select id="filtroStato" onchange="caricaTask()">
                 <option value="">Tutti gli stati</option>
                 <option value="DAFARE">Da fare</option>
                 <option value="INCORSO">In corso</option>
                 <option value="COMPLETATO">Completato</option>
             </select>
 
-            <select id="filtroPriorita" onchange="filtraTask()">
+            <select id="filtroPriorita" onchange="caricaTask()">
                 <option value="">Tutte le priorità</option>
                 <option value="ALTA">Alta</option>
                 <option value="MEDIA">Media</option>
