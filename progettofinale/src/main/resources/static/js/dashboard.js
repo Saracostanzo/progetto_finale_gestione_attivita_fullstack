@@ -88,6 +88,14 @@ function mostraTask(lista) {
 }
 
 
+// resetto entrambi i filtri e ricarico tutti i task
+function resetFiltri() {
+  document.getElementById('filtroStato').value = '';
+  document.getElementById('filtroPriorita').value = '';
+  caricaTask();
+}
+
+
 // chiedo conferma prima di eliminare poi chiamo l'endpoint delete del backend
 // dopo l'eliminazione ricarico la lista per aggiornare la tabella
 async function eliminaTask(id) {
@@ -220,5 +228,4 @@ function logout() {
 }
 
 
-// avvio: appena la pagina è pronta carico subito i task dell'utente
-caricaTask();
+// avvio: appena la pagina è pront
